@@ -93,7 +93,7 @@ module QC
         s = <<~SQL
           WITH selected_job AS (
             SELECT id
-            FROM queue_classic_jobs
+            FROM #{QC.table_name}
             WHERE
               locked_at IS NULL AND
               q_name = $1 AND
@@ -101,12 +101,12 @@ module QC
             LIMIT 1
             FOR NO KEY UPDATE SKIP LOCKED
           )
-          UPDATE queue_classic_jobs
+          UPDATE #{QC.table_name}
           SET
             locked_at = now(),
             locked_by = pg_backend_pid()
           FROM selected_job
-          WHERE queue_classic_jobs.id = selected_job.id
+          WHERE #{QC.table_name}.id = selected_job.id
           RETURNING *
         SQL
 
